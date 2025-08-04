@@ -5,6 +5,7 @@ import { AuthService } from "./auth.service";
 import { SignupDto } from "./dto/signup.dto";
 import { LoginDto } from "./dto/login.dto";
 import { GetUser } from "./decorators/get-user.decorator";
+import { User } from "../user/user.entity";
 
 @Controller("auth")
 export class AuthController {
@@ -21,7 +22,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get("me")
-  getMe(@GetUser() user: any) {
-    return user;
+  async me(@GetUser() user: User) {
+    return this.authService.getUserById(user.id);
   }
 }

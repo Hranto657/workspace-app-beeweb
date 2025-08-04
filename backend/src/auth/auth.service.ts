@@ -38,8 +38,10 @@ export class AuthService {
 
     const saved = await this.userRepo.save(user);
 
-    const { password, ...rest } = saved;
-    return rest;
+    const payload = { sub: saved.id, email: saved.email };
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    return { accessToken };
   }
 
   async login(dto: LoginDto) {
@@ -53,5 +55,18 @@ export class AuthService {
     const accessToken = await this.jwtService.signAsync(payload);
 
     return { accessToken };
+  }
+
+  async getUserById(id: number) {
+    const user = await this.userRepo.findOne({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+      },
+    });
+
+    return user;
   }
 }
