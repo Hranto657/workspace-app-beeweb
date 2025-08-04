@@ -41,11 +41,21 @@ export class AuthService {
     const payload = { sub: saved.id, email: saved.email };
     const accessToken = await this.jwtService.signAsync(payload);
 
-    return { accessToken };
+    return {
+      accessToken,
+      user: {
+        id: saved.id,
+        email: saved.email,
+        fullName: saved.fullName,
+      },
+    };
   }
 
   async login(dto: LoginDto) {
-    const user = await this.userRepo.findOne({ where: { email: dto.email } });
+    const user = await this.userRepo.findOne({
+      where: { email: dto.email },
+    });
+
     if (!user) throw new UnauthorizedException("Invalid credentials");
 
     const isMatch = await bcrypt.compare(dto.password, user.password);
@@ -54,7 +64,14 @@ export class AuthService {
     const payload = { sub: user.id, email: user.email };
     const accessToken = await this.jwtService.signAsync(payload);
 
-    return { accessToken };
+    return {
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+      },
+    };
   }
 
   async getUserById(id: number) {

@@ -66,16 +66,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error(error.message || "Ошибка входа");
     }
 
-    const data = await res.json();
-    localStorage.setItem("accessToken", data.accessToken);
+    const { accessToken, user } = await res.json();
+    localStorage.setItem("accessToken", accessToken);
 
-    const meRes = await fetch(`${API}/auth/me`, {
-      headers: { Authorization: `Bearer ${data.accessToken}` },
-    });
-    const user = await meRes.json();
     setUser(user);
     setIsAuthenticated(true);
-
     router.push("/dashboard");
   };
 
@@ -95,16 +90,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       throw new Error(error.message || "Ошибка регистрации");
     }
 
-    const data = await res.json();
-    localStorage.setItem("accessToken", data.accessToken);
+    const { accessToken, user } = await res.json();
+    localStorage.setItem("accessToken", accessToken);
 
-    const meRes = await fetch(`${API}/auth/me`, {
-      headers: { Authorization: `Bearer ${data.accessToken}` },
-    });
-    const user = await meRes.json();
     setUser(user);
     setIsAuthenticated(true);
-
     router.push("/dashboard");
   };
 
