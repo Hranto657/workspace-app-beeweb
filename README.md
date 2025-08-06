@@ -41,6 +41,7 @@ docker run --name mysql-ws-app -e MYSQL_ROOT_PASSWORD=12345678 -p 3306:3306 -d m
 📁 .env file
 Create a .env file in the backend/ directory and paste this:
 
+# .env (backend)
 NODE_ENV=development
 
 # ========== DATABASE ==========
@@ -53,7 +54,6 @@ DB_NAME=workspace_app
 # ========== JWT TOKENS ==========
 JWT_ACCESS_SECRET=access_supersecret_key
 JWT_ACCESS_EXPIRES_IN=15m
-
 JWT_REFRESH_SECRET=refresh_supersecret_key
 JWT_REFRESH_EXPIRES_IN=7d
 
@@ -62,8 +62,10 @@ PORT=4000
 CLIENT_URL=http://localhost:3000
 
 📦 Install dependencies
+# Backend
 cd backend
 npm install
+npm run start:dev
 
 🚀 Run the server
 npm run start:dev - This starts the NestJS backend on http://localhost:4000.
@@ -71,8 +73,10 @@ npm run start:dev - This starts the NestJS backend on http://localhost:4000.
 💻 3. Set Up Frontend (Next.js)
 
 📦 Install dependencies
+# Frontend
 cd frontend
 npm install
+npm run dev
 
 🚀 Run the frontend
 npm run dev - The frontend will be available at http://localhost:3000.
