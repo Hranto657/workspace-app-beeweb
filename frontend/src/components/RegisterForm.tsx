@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import Input from "./ui/Input";
+import Button from "./ui/Button";
 
 type RegisterFormData = {
   fullName: string;
@@ -23,63 +25,59 @@ export default function RegisterForm() {
     try {
       await registerUser(data.fullName, data.email, data.password);
     } catch (err: any) {
-      setServerError(err.message || "Ошибка регистрации");
+      setServerError(err.message || "Registration failed");
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Full Name
-        </label>
-        <input
-          type="text"
-          {...register("fullName", { required: "Full name is required" })}
-          className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-        {errors.fullName && (
-          <p className="text-sm text-red-600 mt-1">{errors.fullName.message}</p>
-        )}
-      </div>
+      <Input
+        label="Full Name"
+        type="text"
+        error={errors.fullName?.message}
+        {...register("fullName", {
+          required: "Full name is required",
+          minLength: {
+            value: 2,
+            message: "Full name must be at least 2 characters",
+          },
+        })}
+      />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Email
-        </label>
-        <input
-          type="email"
-          {...register("email", { required: "Email is required" })}
-          className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-        {errors.email && (
-          <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
-        )}
-      </div>
+      <Input
+        label="Email"
+        type="email"
+        error={errors.email?.message}
+        {...register("email", {
+          required: "Email is required",
+          pattern: {
+            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            message: "Enter a valid email address",
+          },
+        })}
+      />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Password
-        </label>
-        <input
-          type="password"
-          {...register("password", { required: "Password is required" })}
-          className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-        {errors.password && (
-          <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>
-        )}
-      </div>
+      <Input
+        label="Password"
+        type="password"
+        error={errors.password?.message}
+        {...register("password", {
+          required: "Password is required",
+          minLength: {
+            value: 6,
+            message: "Password must be at least 6 characters",
+          },
+          validate: (val) =>
+            (/[a-zA-Z]/.test(val) && /\d/.test(val)) ||
+            "Password must contain at least one letter and one number",
+        })}
+      />
 
       {serverError && <p className="text-sm text-red-600">{serverError}</p>}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow-sm transition disabled:opacity-50"
-      >
-        {isSubmitting ? "Регистрация..." : "Зарегистрироваться"}
-      </button>
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Registering..." : "Register"}
+      </Button>
     </form>
   );
 }
