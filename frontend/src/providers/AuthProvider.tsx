@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { AuthService } from "@/services/auth.service";
 import { AuthContext } from "@/contexts/AuthContext";
 import { User, AuthResponse } from "@/types/auth";
-
+import { queryClient } from "@/pages/_app";
 import {
   getAccessToken,
   setAccessToken,
@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     removeAccessToken();
     setUser(null);
     setIsAuthenticated(false);
-
+    queryClient.clear();
     if (redirect) router.push("/login");
   };
 
