@@ -2,7 +2,7 @@ import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { createWorkspace } from "@/services/workspaces.api";
 import { CreateWorkspaceDto, Workspace } from "@/types/workspaces";
 
-export const useCreateWorkspaceMutation = () => {
+export const useCreateWorkspace = () => {
   const queryClient = useQueryClient();
 
   return useMutation<Workspace, Error, CreateWorkspaceDto>({
