@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { withGuestGuard } from "@/hoc/withGuestGuard";
 
-export default function Home() {
+function HomePage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md text-center space-y-6">
@@ -9,13 +10,13 @@ export default function Home() {
         <div className="flex justify-center gap-4">
           <Link
             href="/login"
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md"
           >
             Login
           </Link>
           <Link
             href="/register"
-            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md transition"
+            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md"
           >
             Register
           </Link>
@@ -24,3 +25,5 @@ export default function Home() {
     </main>
   );
 }
+
+export default withGuestGuard(HomePage);

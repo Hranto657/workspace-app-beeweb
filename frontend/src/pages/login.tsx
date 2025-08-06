@@ -1,10 +1,13 @@
 import LoginForm from "@/components/LoginForm";
 import FormWrapper from "@/components/ui/FormWrapper";
+import { withGuestGuard } from "@/hoc/withGuestGuard";
 
-export default function LoginPage() {
+function LoginPage() {
   return (
     <FormWrapper title="Login">
       <LoginForm />
     </FormWrapper>
   );
 }
+
+export default withGuestGuard(LoginPage);
