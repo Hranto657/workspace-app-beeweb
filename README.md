@@ -36,9 +36,7 @@ docker run --name mysql-ws-app -e MYSQL_ROOT_PASSWORD=12345678 -p 3306:3306 -d m
 
 🗄️ 2. Set Up Backend (NestJS)
 
-🔧 Prerequisites
-Node.js v18
-NPM
+🔧 Prerequisites - Node.js v18, NPM
 
 📁 .env file
 Create a .env file in the backend/ directory and paste this:
