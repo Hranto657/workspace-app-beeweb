@@ -134,15 +134,13 @@ export default function WorkspaceForm({
       </div>
 
       <div className="flex justify-end gap-2">
-        {mode === "edit" && (
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard")}
-            className="text-gray-600 hover:underline"
-          >
-            ✖ Cancel
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => router.push("/dashboard")}
+          className="text-gray-600 hover:underline"
+        >
+          ✖ Cancel
+        </button>
 
         <Button
           type="submit"
