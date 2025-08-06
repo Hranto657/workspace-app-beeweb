@@ -14,8 +14,10 @@ export const createWorkspace = async (
 
 export const checkSlugAvailability = async (
   slug: string
-): Promise<{ available: boolean }> => {
-  const response = await api.post("/workspaces/check-slug", { slug });
+): Promise<{ available: boolean; suggestions?: string[] }> => {
+  const response = await api.get("/workspaces/check-slug", {
+    params: { slug },
+  });
   return response.data;
 };
 
@@ -26,6 +28,11 @@ export const getWorkspaces = async (): Promise<Workspace[]> => {
 
 export const getWorkspaceById = async (id: string): Promise<Workspace> => {
   const response = await api.get(`/workspaces/${id}`);
+  return response.data;
+};
+
+export const getWorkspaceBySlug = async (slug: string): Promise<Workspace> => {
+  const response = await api.get(`/workspaces/slug/${slug}`);
   return response.data;
 };
 

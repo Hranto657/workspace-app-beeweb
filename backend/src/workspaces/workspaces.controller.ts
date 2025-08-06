@@ -6,13 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from "@nestjs/common";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { WorkspacesService } from "./workspace.service";
 import { CreateWorkspaceDto } from "./dto/create-workspace.dto";
-import { CheckSlugDto } from "./dto/check-slug.dto";
 import { UpdateWorkspaceDto } from "./dto/update-workspace.dto";
 
 @Controller("workspaces")
@@ -26,15 +26,21 @@ export class WorkspacesController {
     return this.workspacesService.create(dto, ownerId);
   }
 
-  @Post("check-slug")
-  checkSlug(@Body() dto: CheckSlugDto) {
-    return this.workspacesService.checkSlug(dto.slug);
+  @Get("check-slug")
+  checkSlug(@Query("slug") slug: string) {
+    return this.workspacesService.checkSlugAvailability(slug);
   }
 
   @Get()
   findAll(@Req() req) {
     const ownerId = req.user.userId;
     return this.workspacesService.findAllByUser(ownerId);
+  }
+
+  @Get("slug/:slug")
+  findOneBySlug(@Param("slug") slug: string, @Req() req) {
+    const ownerId = req.user.userId;
+    return this.workspacesService.findOneBySlug(slug, ownerId);
   }
 
   @Get(":id")

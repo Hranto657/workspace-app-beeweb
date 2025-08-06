@@ -67,7 +67,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
     setIsAuthenticated(false);
     localStorage.removeItem("wasLoggedIn");
-    queryClient.clear();
     if (redirect) router.push("/login");
   };
 

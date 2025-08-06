@@ -12,7 +12,7 @@ export const useUpdateWorkspace = (id?: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workspaces"] });
-      queryClient.invalidateQueries({ queryKey: ["workspaces", id] });
+      queryClient.invalidateQueries({ queryKey: ["workspace", id] });
     },
   });
 };

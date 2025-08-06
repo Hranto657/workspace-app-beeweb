@@ -30,8 +30,17 @@ api.interceptors.response.use(
     const isUnauthorized = error.response?.status === 401;
     const isNotRetry = !originalRequest._retry;
     const isNotRefreshEndpoint = originalRequest.url !== "/auth/refresh";
+    const isNotLoginEndpoint = !originalRequest.url?.includes("/auth/login");
+    const isNotRegisterEndpoint =
+      !originalRequest.url?.includes("/auth/register");
 
-    if (isUnauthorized && isNotRetry && isNotRefreshEndpoint) {
+    if (
+      isUnauthorized &&
+      isNotRetry &&
+      isNotRefreshEndpoint &&
+      isNotLoginEndpoint &&
+      isNotRegisterEndpoint
+    ) {
       originalRequest._retry = true;
 
       try {

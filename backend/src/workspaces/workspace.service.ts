@@ -23,6 +23,12 @@ export class WorkspacesService {
     return workspace;
   }
 
+  private async getWorkspaceBySlugOrThrow(slug: string): Promise<Workspace> {
+    const workspace = await this.workspaceRepository.findOneBy({ slug });
+    if (!workspace) throw new NotFoundException("Workspace not found");
+    return workspace;
+  }
+
   private ensureOwnership(workspace: Workspace, userId: string): void {
     if (String(workspace.ownerId) !== String(userId)) {
       throw new ForbiddenException("Access denied");
@@ -39,6 +45,29 @@ export class WorkspacesService {
     }
   }
 
+  private async generateSlugSuggestions(
+    baseSlug: string,
+    limit = 5
+  ): Promise<string[]> {
+    const suggestions: string[] = [];
+    let i = 1;
+
+    while (suggestions.length < limit) {
+      const newSlug = `${baseSlug}${i}`;
+      const exists = await this.workspaceRepository.findOne({
+        where: { slug: newSlug },
+      });
+
+      if (!exists) {
+        suggestions.push(newSlug);
+      }
+
+      i++;
+    }
+
+    return suggestions;
+  }
+
   async create(
     createWorkspaceDto: CreateWorkspaceDto,
     ownerId: string
@@ -53,9 +82,20 @@ export class WorkspacesService {
     return this.workspaceRepository.save(workspace);
   }
 
-  async checkSlug(slug: string): Promise<{ available: boolean }> {
-    const existing = await this.workspaceRepository.findOneBy({ slug });
-    return { available: !existing };
+  async checkSlugAvailability(slug: string) {
+    const existing = await this.workspaceRepository.findOne({
+      where: { slug },
+    });
+
+    if (!existing) {
+      return { available: true };
+    }
+
+    const suggestions = await this.generateSlugSuggestions(slug);
+    return {
+      available: false,
+      suggestions,
+    };
   }
 
   async findAllByUser(ownerId: string): Promise<Workspace[]> {
@@ -64,6 +104,13 @@ export class WorkspacesService {
       order: { createdAt: "DESC" },
     });
   }
+
+  async findOneBySlug(slug: string, ownerId: string): Promise<Workspace> {
+    const workspace = await this.getWorkspaceBySlugOrThrow(slug);
+    this.ensureOwnership(workspace, ownerId);
+    return workspace;
+  }
+
   async findOneById(id: string, ownerId: string): Promise<Workspace> {
     const workspace = await this.getWorkspaceOrThrow(id);
     this.ensureOwnership(workspace, ownerId);

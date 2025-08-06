@@ -1,14 +1,12 @@
 import Link from "next/link";
 import { Workspace } from "@/types/workspaces";
 import { useDeleteWorkspace } from "@/hooks/workspaces/useDeleteWorkspace";
-import { useRouter } from "next/router";
 
 interface Props {
   workspace: Workspace;
 }
 
 export default function WorkspaceCard({ workspace }: Props) {
-  const router = useRouter();
   const { mutate: deleteWorkspace, isPending } = useDeleteWorkspace(
     workspace.id
   );
@@ -32,7 +30,7 @@ export default function WorkspaceCard({ workspace }: Props) {
 
       <div className="flex items-center gap-2">
         <Link
-          href={`/workspaces/${workspace.id}`}
+          href={`/workspaces/${workspace.slug}`}
           className="text-blue-600 hover:underline"
         >
           Edit

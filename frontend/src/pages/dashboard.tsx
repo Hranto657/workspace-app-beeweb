@@ -10,12 +10,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const { data: workspaces, isLoading, isError } = useWorkspaceList();
 
-  useEffect(() => {
-    if (isAuthenticated === false) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, router]);
-
   if (isAuthenticated === null) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -42,7 +36,7 @@ export default function DashboardPage() {
           </div>
 
           <button
-            onClick={() => logout()}
+            onClick={logout}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition"
           >
             Logout

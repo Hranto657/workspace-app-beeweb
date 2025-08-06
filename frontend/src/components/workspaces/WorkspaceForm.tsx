@@ -6,6 +6,7 @@ import FormError from "@/components/ui/FormError";
 import { useCheckSlugAvailability } from "@/hooks/workspaces/useCheckSlugAvailability";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
+import { useUpdateEffect } from "@/hooks/common/useUpdateEffect";
 
 interface FormValues {
   name: string;
@@ -43,6 +44,7 @@ export default function WorkspaceForm({
       slug: "",
     },
   });
+
   const isSlugTouched = useRef(false);
 
   const name = watch("name");
@@ -55,29 +57,24 @@ export default function WorkspaceForm({
     isPending: isCheckingSlug,
   } = useCheckSlugAvailability();
 
-  // Авто-генерация slug из name (только в create режиме)
-  useEffect(() => {
-    if (mode === "create") {
-      const generated = slugify(name);
-      setValue("slug", generated);
-    }
-  }, [name, mode, setValue]);
-
-  // Проверка slug
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      if (slug) checkSlug(slug);
-    }, 1000);
-
-    return () => clearTimeout(delay);
-  }, [slug]);
-
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (!isSlugTouched.current) {
-      const generated = slugify(name);
-      setValue("slug", generated);
+      const generatedSlug = slugify(name);
+      setValue("slug", generatedSlug, { shouldValidate: true });
     }
   }, [name, setValue]);
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      if (!slug || (mode === "edit" && slug === initialValues?.slug)) return;
+
+      if (isSlugTouched.current || mode === "create") {
+        checkSlug(slug);
+      }
+    }, 500);
+
+    return () => clearTimeout(delay);
+  }, [slug, mode, initialValues?.slug, checkSlug]);
 
   const onValid = (values: FormValues) => {
     onSubmit(values);
@@ -117,13 +114,30 @@ export default function WorkspaceForm({
               : "✅ Slug is available"}
           </p>
         )}
+        {slugCheckResult?.available === false &&
+          Array.isArray(slugCheckResult.suggestions) &&
+          slugCheckResult.suggestions.length > 0 &&
+          !(mode === "edit" && slug === initialValues?.slug) && (
+            <div className="flex flex-wrap gap-2 mt-1">
+              {slugCheckResult.suggestions.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  className="bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 text-sm"
+                  onClick={() => setValue("slug", suggestion)}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
       </div>
 
       <div className="flex justify-end gap-2">
         {mode === "edit" && (
           <button
             type="button"
-            onClick={() => router.push("/workspaces")}
+            onClick={() => router.push("/dashboard")}
             className="text-gray-600 hover:underline"
           >
             ✖ Cancel
