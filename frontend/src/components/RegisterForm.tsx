@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { parseError } from "@/utils/parseError";
 import Input from "./ui/Input";
 import Button from "./ui/Button";
