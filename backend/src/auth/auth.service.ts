@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   ConflictException,
+  ForbiddenException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { SignupDto } from "./dto/signup.dto";
@@ -10,6 +11,7 @@ import { Repository } from "typeorm";
 import { User } from "../user/user.entity";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
+import { JwtPayload, JwtTokens } from "src/common/types/tokens.type";
 
 @Injectable()
 export class AuthService {
@@ -38,38 +40,15 @@ export class AuthService {
 
     const saved = await this.userRepo.save(user);
 
-    const payload = { sub: saved.id, email: saved.email };
-    const accessToken = await this.jwtService.signAsync(payload);
+    const tokens = await this.generateTokens(saved);
 
     return {
-      accessToken,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
       user: {
         id: saved.id,
         email: saved.email,
         fullName: saved.fullName,
-      },
-    };
-  }
-
-  async login(dto: LoginDto) {
-    const user = await this.userRepo.findOne({
-      where: { email: dto.email },
-    });
-
-    if (!user) throw new UnauthorizedException("Invalid credentials");
-
-    const isMatch = await bcrypt.compare(dto.password, user.password);
-    if (!isMatch) throw new UnauthorizedException("Invalid credentials");
-
-    const payload = { sub: user.id, email: user.email };
-    const accessToken = await this.jwtService.signAsync(payload);
-
-    return {
-      accessToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
       },
     };
   }
@@ -83,6 +62,47 @@ export class AuthService {
         fullName: true,
       },
     });
+
+    return user;
+  }
+
+  async generateTokens(user: User): Promise<JwtTokens> {
+    if (!user || !user.id) {
+      throw new ForbiddenException("Cannot generate tokens: invalid user");
+    }
+    const payload: JwtPayload = { userId: user.id };
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: "15m",
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_REFRESH_SECRET,
+        expiresIn: "7d",
+      }),
+    ]);
+
+    return { accessToken, refreshToken };
+  }
+
+  async verifyRefreshToken(token: string): Promise<JwtPayload> {
+    try {
+      return await this.jwtService.verifyAsync<JwtPayload>(token, {
+        secret: process.env.JWT_REFRESH_SECRET,
+      });
+    } catch {
+      throw new ForbiddenException("Invalid refresh token");
+    }
+  }
+
+  async validateUser(dto: LoginDto): Promise<User> {
+    const user = await this.userRepo.findOne({ where: { email: dto.email } });
+
+    if (!user) throw new UnauthorizedException("Invalid credentials");
+
+    const isMatch = await bcrypt.compare(dto.password, user.password);
+    if (!isMatch) throw new UnauthorizedException("Invalid credentials");
 
     return user;
   }
